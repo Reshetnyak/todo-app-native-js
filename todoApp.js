@@ -9,42 +9,91 @@
 
     Todo.prototype.createTodoEl = function(){
 
-        var todoLi     = doc.createElement('Li');
-        var todoStatus = doc.createElement('SPAN');
-        var todoInput  = doc.createElement('INPUT');
-        var closeBtn   = doc.createElement('SPAN');
-        var textSpan   = doc.createElement('SPAN');
-        var descriptionForm = doc.createElement('FORM');
+        var todo = this;
 
-        todoLi.classList.add('todo');
-        todoLi.id = this.id;
+        var todoLi          = createTodoLi();
+        var descriptionForm = createDescriptionForm();
+        var todoStatus      = createTodoStatus();
+        var textSpan        = createTextSpan();
+        var todoInput       = createTodoInput();
+        var closeBtn        = createCloseBtn();
 
-        descriptionForm.classList.add('todo-description');
-        descriptionForm.addEventListener('submit', saveChanges.bind(this));
-        todoLi.appendChild(descriptionForm);
-
-        todoStatus.classList.add('todo-status');
-        todoStatus.addEventListener('click', toggleStatus.bind(this));
-        descriptionForm.appendChild(todoStatus);
-
-        textSpan.classList.add('todo-text');
-        textSpan.textContent = this.text;
-        textSpan.addEventListener('dblclick', showInput);
-        descriptionForm.appendChild(textSpan);
-
-        closeBtn.classList.add('close-btn');
-        closeBtn.addEventListener('click', this.removeTodo.bind(this));
-        descriptionForm.appendChild(closeBtn);
-
-        todoInput.classList.add('.edit-todo', 'hidden');
-        todoInput.setAttribute('autocomplete', 'off');
-        todoInput.value = this.text;
-        todoInput.setAttribute('tabindex', todoApp.todosNum + 1);
-        todoInput.setAttribute('name', 'todo' + todoApp.todosNum + 1);
-        todoInput.addEventListener('blur', saveChanges.bind(this));
-        descriptionForm.appendChild(todoInput);
+        fullFillLi();
 
         return todoLi;
+
+        function createTodoLi(){
+
+            var todoLi = doc.createElement('Li');
+
+            todoLi.classList.add('todo');
+            todoLi.id = todo.id;
+
+            return todoLi;
+        }
+
+        function createDescriptionForm(){
+
+            var descriptionForm = doc.createElement('FORM');
+
+            descriptionForm.classList.add('todo-description');
+            descriptionForm.addEventListener('submit', saveChanges.bind(todo));
+
+            return descriptionForm;
+        }
+
+        function createTodoStatus(){
+
+            var todoStatus = doc.createElement('SPAN');
+
+            todoStatus.classList.add('todo-status');
+            todoStatus.addEventListener('click', toggleStatus.bind(todo));
+
+            return todoStatus;
+        }
+
+        function createTextSpan(){
+
+            var textSpan = doc.createElement('SPAN');
+
+            textSpan.classList.add('todo-text');
+            textSpan.textContent = todo.text;
+            textSpan.addEventListener('dblclick', showInput);
+
+            return textSpan;
+        }
+
+        function createTodoInput(){
+
+            var todoInput = doc.createElement('INPUT');
+
+            todoInput.classList.add('.edit-todo', 'hidden');
+            todoInput.setAttribute('autocomplete', 'off');
+            todoInput.value = todo.text;
+            todoInput.setAttribute('tabindex', todoApp.todosNum + 1);
+            todoInput.setAttribute('name', 'todo' + todoApp.todosNum + 1);
+            todoInput.addEventListener('blur', saveChanges.bind(todo));
+
+            return todoInput;
+        }
+
+        function createCloseBtn(){
+
+            var closeBtn = doc.createElement('SPAN');
+
+            closeBtn.classList.add('close-btn');
+            closeBtn.addEventListener('click', todo.removeTodo.bind(todo));
+
+            return closeBtn;
+        }
+
+        function fullFillLi(){
+            todoLi.appendChild(descriptionForm);
+            descriptionForm.appendChild(todoStatus);
+            descriptionForm.appendChild(textSpan);
+            descriptionForm.appendChild(todoInput);
+            descriptionForm.appendChild(closeBtn);
+        }
 
         function showInput(){
             toggleEditableMode();
@@ -58,29 +107,28 @@
         function saveChanges(e){
 
             if (e.type === 'submit'){
+                todo.wasSubmited = true;
                 e.preventDefault();
+            } else {
+                todo.wasSubmited = false;
             }
 
             var val = todoInput.value;
             var isEmpty = val.trim() === '';
-            var formWasSubmitted = todoInput.classList.contains('hidden');
 
-            if (e.type === 'blur' && formWasSubmitted){
-                return false;
-            }
-
-            if ( isEmpty ){
-                this.removeTodo();
+            if ( isEmpty && todo.wasSubmited === false){
+                todo.removeTodo();
+                delete todo;
             } else {
-                this.text = val;
+                todo.text = val;
                 textSpan.textContent = val;
+                toggleEditableMode();
             }
 
-            toggleEditableMode();
             todoApp.todoInput.focus();
         }
         function toggleStatus(){
-            this.competed = !this.completed;
+            todo.competed = !todo.completed;
         }
     };
 
