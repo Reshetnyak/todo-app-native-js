@@ -34,18 +34,19 @@
 
     var todoApp = {
         setAppElements: function(){
-            this.addTodoBtn = doc.querySelector('#add-to-do-btn');
-            this.todoInput  = doc.querySelector('#to-do-input');
+            this.addTodoBtn = doc.querySelector('#add-todo-btn');
+            this.todoInput  = doc.querySelector('#todo-input');
             this.todosUl    = doc.querySelector('#todos');
+            this.todoForm   = doc.querySelector('#todo-form');
         },
         addHandlers: function(){
-            this.addTodoBtn.onclick = function(){
+            this.todoForm.addEventListener('submit', submitListener);
 
-                function isInvalid(){
-                    return todoApp.addTodoBtn.getAttribute('disabled') !== null;
-                }
+            function submitListener(e){
 
-                if ( isInvalid() ){
+                e.preventDefault();
+
+                if ( isInputEmpty() ){
                     return false;
                 }
 
@@ -54,7 +55,32 @@
 
                 todo.appendTodo();
 
+            }
+
+            this.todoInput.onkeyup = function(){
+
+                if ( isInputEmpty() ){
+                    isBtnEnabled() && disableBtn();
+                } else {
+                    isBtnEnabled() === false && enableBtn();
+                }
+
+                function isBtnEnabled(){
+                    return todoApp.addTodoBtn.disabled === false;
+                }
+
+                function enableBtn(){
+                    todoApp.addTodoBtn.disabled = false;
+                }
+
+                function disableBtn(){
+                    todoApp.addTodoBtn.disabled = true;
+                }
             };
+
+            function isInputEmpty(){
+                return todoApp.todoInput.value.trim() === '';
+            }
         },
         init: function(){
             todoApp.setAppElements();
@@ -63,9 +89,5 @@
     };
 
     window.addEventListener('DOMContentLoaded', todoApp.init);
-
-
-
-
 
 }(window, document));
