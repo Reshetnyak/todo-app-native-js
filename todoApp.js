@@ -11,14 +11,17 @@
     Todo.prototype.appendTodo = function(){
 
         function createTodo(todo){
+
             var li = doc.createElement('LI');
+
             li.setAttribute('id', todo.id);
             li.innerText = todo.text;
+
+            return li;
         }
 
         function appendToList(todoLi){
             todoApp
-                .appElements
                 .todosUl
                 .appendChild(todoLi);
         }
@@ -37,14 +40,16 @@
         },
         addHandlers: function(){
             this.addTodoBtn.onclick = function(){
-                var todoApp = this;
-                var isInvalid = todoApp.addTodoBtn.getAttribute('disabled') !== null;
 
-                if (isInvalid){
+                function isInvalid(){
+                    return todoApp.addTodoBtn.getAttribute('disabled') !== null;
+                }
+
+                if ( isInvalid() ){
                     return false;
                 }
 
-                var todoText = todoApp.appElements.todoInput.value;
+                var todoText = todoApp.todoInput.value;
                 var todo = new Todo(todoText);
 
                 todo.appendTodo();
