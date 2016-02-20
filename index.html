@@ -8,8 +8,15 @@
 </head>
 <body>
     <div id="todo-list-container">
-        <form action="" id="todo-form">
-            <input id="todo-input" type="text" placeholder="What do you need to do?">
+        <form action="" id="todo-form" name="todo-form">
+            <input
+                id="todo-input"
+                name="todo-input"
+                type="text"
+                placeholder="What do you need to do?"
+                autocomplete="off"
+                autofocus
+                tabindex="0">
             <ul id="todos">
                 <li id="dummy-todo">Nothing to do yet.</li>
             </ul>

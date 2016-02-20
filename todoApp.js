@@ -1,6 +1,5 @@
 ;(function todoApplication(window, doc){
 
-
     var Todo = function(text){
         this.id   = '_' + new Date().getTime();
         this.text = text;
@@ -10,25 +9,79 @@
 
     Todo.prototype.createTodoEl = function(){
 
-        var li = doc.createElement('LI');
-        var textSpan = doc.createElement('SPAN');
-        var closeBtn = doc.createElement('SPAN');
+        var todoLi     = doc.createElement('Li');
+        var todoStatus = doc.createElement('SPAN');
+        var todoInput  = doc.createElement('INPUT');
+        var closeBtn   = doc.createElement('SPAN');
+        var textSpan   = doc.createElement('SPAN');
+        var descriptionForm = doc.createElement('FORM');
 
-        li.setAttribute('id', this.id);
-        li.classList.add('todo');
+        todoLi.classList.add('todo');
+        todoLi.id = this.id;
 
-        textSpan.textContent = this.text;
+        descriptionForm.classList.add('todo-description');
+        descriptionForm.addEventListener('submit', saveChanges.bind(this));
+        todoLi.appendChild(descriptionForm);
+
+        todoStatus.classList.add('todo-status');
+        todoStatus.addEventListener('click', toggleStatus.bind(this));
+        descriptionForm.appendChild(todoStatus);
+
         textSpan.classList.add('todo-text');
+        textSpan.textContent = this.text;
+        textSpan.addEventListener('dblclick', showInput);
+        descriptionForm.appendChild(textSpan);
 
-        closeBtn.textContent = '   X';
         closeBtn.classList.add('close-btn');
-
         closeBtn.addEventListener('click', this.removeTodo.bind(this));
+        descriptionForm.appendChild(closeBtn);
 
-        li.appendChild(textSpan);
-        li.appendChild(closeBtn);
+        todoInput.classList.add('.edit-todo', 'hidden');
+        todoInput.setAttribute('autocomplete', 'off');
+        todoInput.value = this.text;
+        todoInput.setAttribute('tabindex', todoApp.todosNum + 1);
+        todoInput.setAttribute('name', 'todo' + todoApp.todosNum + 1);
+        todoInput.addEventListener('blur', saveChanges.bind(this));
+        descriptionForm.appendChild(todoInput);
 
-        return li;
+        return todoLi;
+
+        function showInput(){
+            toggleEditableMode();
+            todoInput.focus();
+        }
+
+        function toggleEditableMode(){
+            textSpan.classList.toggle('hidden');
+            todoInput.classList.toggle('hidden');
+        }
+        function saveChanges(e){
+
+            if (e.type === 'submit'){
+                e.preventDefault();
+            }
+
+            var val = todoInput.value;
+            var isEmpty = val.trim() === '';
+            var formWasSubmitted = todoInput.classList.contains('hidden');
+
+            if (e.type === 'blur' && formWasSubmitted){
+                return false;
+            }
+
+            if ( isEmpty ){
+                this.removeTodo();
+            } else {
+                this.text = val;
+                textSpan.textContent = val;
+            }
+
+            toggleEditableMode();
+            todoApp.todoInput.focus();
+        }
+        function toggleStatus(){
+            this.competed = !this.completed;
+        }
     };
 
     Todo.prototype.appendTodo = function(){
@@ -49,7 +102,10 @@
         var todoToDelete = ul.querySelector('#' + this.id);
 
         ul.removeChild(todoToDelete);
-    }
+        todoApp.todosNum -= 1;
+
+        todoApp.setDummyTodoVisibility();
+    };
 
     var todoApp = {
         todosNum: 0,
@@ -59,6 +115,11 @@
             this.todosUl    = doc.querySelector('#todos');
             this.todoForm   = doc.querySelector('#todo-form');
             this.dummyTodo  = doc.querySelector('#dummy-todo');
+        },
+        setDummyTodoVisibility: function(){
+            var method = todoApp.todosNum > 0 ? 'add' : 'remove';
+
+            todoApp.dummyTodo.classList[method]('hidden');
         },
         addHandlers: function(){
 
@@ -81,20 +142,11 @@
                 todoApp.todosNum += 1;
                 clearInput();
 
-                todoApp.todosNum > 0 ? hideDummyTodo() : showDummyTodo();
+                todoApp.setDummyTodoVisibility();
 
                 function clearInput(){
                     todoApp.todoInput.value = '';
                 }
-
-                function showDummyTodo(){
-                    todoApp.dummyTodo.classList.remove('hidden');
-                }
-
-                function hideDummyTodo(){
-                    todoApp.dummyTodo.classList.add('hidden');
-                }
-
             }
 
             function disableIfEmpty(){
