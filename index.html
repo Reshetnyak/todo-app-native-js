@@ -23,5 +23,20 @@
             <input id="add-todo-btn" type="submit" value="Add todo" disabled><!-- disabled="true">-->
         </form>
     </div>
+    <div id="todo-template">
+        <div class="todo" id="{{ id }}">
+            <form class="todo-description">
+                <span class="todo-status"></span>
+                <span class="todo-text">{{ text }}</span>
+                <input
+                    class="edit-todo hidden"
+                    autocomplete="off"
+                    name="{{ name }}"
+                    tabindex="{{ tabindex }}"
+                    value="{{ text }}">
+                <span class="close-btn"> X</span>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

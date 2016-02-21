@@ -10,88 +10,40 @@
     Todo.prototype.createTodoEl = function(){
 
         var todo = this;
+        var todoLi = doc.createElement('LI');
+        var dF = doc.createDocumentFragment();
+        var compiledTemplate = compile(todoApp.todoTemplate, {
+            id: todo.id,
+            text: todo.text,
+            name: todoApp.todosNum + 1,
+            tabindex: todoApp.todosNum + 1
+        });
+        todoLi.innerHTML = compiledTemplate;
 
-        var todoLi          = createTodoLi();
-        var descriptionForm = createDescriptionForm();
-        var todoStatus      = createTodoStatus();
-        var textSpan        = createTextSpan();
-        var todoInput       = createTodoInput();
-        var closeBtn        = createCloseBtn();
+        dF.appendChild(todoLi);
 
-        fullFillLi();
+        return dF;
+
+        function compile(template, data){
+            return template.replace(/\{\{\s+?(\S+)\s+?\}\}/g, function(matched, property){
+                return data[property];
+            });
+        }
+    };
+
+    Todo.prototype.addHandlers = function(){
+
+        var todo = this;
+        var id = '#' + todo.id;
+
+        var todoDiv         = doc.querySelector( id + '.todo');
+        var descriptionForm = doc.querySelector( id + ' .todo-description');
+        var todoStatus      = doc.querySelector( id + ' .todo-status');
+        var textSpan        = doc.querySelector( id + ' .todo-text');
+        var todoInput       = doc.querySelector( id + ' .edit-todo');
+        var closeBtn        = doc.querySelector( id + ' .close-btn');
+
         addHandlers();
-
-        return todoLi;
-
-        function createTodoLi(){
-
-            var todoLi = doc.createElement('Li');
-
-            todoLi.classList.add('todo');
-            todoLi.id = todo.id;
-
-            return todoLi;
-        }
-
-        function createDescriptionForm(){
-
-            var descriptionForm = doc.createElement('FORM');
-
-            descriptionForm.classList.add('todo-description');
-
-            return descriptionForm;
-        }
-
-        function createTodoStatus(){
-
-            var todoStatus = doc.createElement('SPAN');
-
-            todoStatus.classList.add('todo-status');
-
-            return todoStatus;
-        }
-
-        function createTextSpan(){
-
-            var textSpan = doc.createElement('SPAN');
-
-            textSpan.classList.add('todo-text');
-            textSpan.textContent = todo.text;
-
-            return textSpan;
-        }
-
-        function createTodoInput(){
-
-            var todoInput = doc.createElement('INPUT');
-
-            todoInput.classList.add('.edit-todo', 'hidden');
-            todoInput.setAttribute('autocomplete', 'off');
-            todoInput.value = todo.text;
-            todoInput.setAttribute('tabindex', todoApp.todosNum + 1);
-            todoInput.setAttribute('name', 'todo' + todoApp.todosNum + 1);
-
-            return todoInput;
-        }
-
-        function createCloseBtn(){
-
-            var closeBtn = doc.createElement('SPAN');
-
-            closeBtn.classList.add('close-btn');
-            closeBtn.textContent = ' X';
-            closeBtn.addEventListener('click', todo.removeTodo.bind(todo));
-
-            return closeBtn;
-        }
-
-        function fullFillLi(){
-            todoLi.appendChild(descriptionForm);
-            descriptionForm.appendChild(todoStatus);
-            descriptionForm.appendChild(textSpan);
-            descriptionForm.appendChild(todoInput);
-            descriptionForm.appendChild(closeBtn);
-        }
 
         function addHandlers(){
             descriptionForm.addEventListener('submit', saveChanges.bind(todo));
@@ -137,7 +89,7 @@
         }
         function toggleStatus(){
             todo.competed = !todo.completed;
-            todoLi.classList.toggle('completed');
+            todoDiv.classList.toggle('completed');
         }
     };
 
@@ -152,12 +104,13 @@
         var todoLi = this.createTodoEl();
 
         appendToList(todoLi);
+        this.addHandlers();
     };
 
     Todo.prototype.removeTodo = function(){
 
         var ul = todoApp.todosUl;
-        var todoToDelete = ul.querySelector('#' + this.id);
+        var todoToDelete = ul.querySelector('#' + this.id).parentNode;
 
         todoToDelete && ul.removeChild(todoToDelete);
     };
@@ -170,6 +123,9 @@
             this.todosUl    = doc.querySelector('#todos');
             this.todoForm   = doc.querySelector('#todo-form');
             this.dummyTodo  = doc.querySelector('#dummy-todo');
+        },
+        setTemplate: function(){
+            this.todoTemplate = doc.querySelector('#todo-template').innerHTML;
         },
         setDummyTodoVisibility: function(){
             var method = todoApp.todosNum > 0 ? 'add' : 'remove';
@@ -230,6 +186,7 @@
             }
         },
         init: function(){
+            todoApp.setTemplate();
             todoApp.setAppElements();
             todoApp.addHandlers();
         }
