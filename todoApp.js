@@ -137,6 +137,7 @@
         }
         function toggleStatus(){
             todo.competed = !todo.completed;
+            todoLi.classList.toggle('completed');
         }
     };
 
@@ -158,7 +159,7 @@
         var ul = todoApp.todosUl;
         var todoToDelete = ul.querySelector('#' + this.id);
 
-        ul.removeChild(todoToDelete);
+        todoToDelete && ul.removeChild(todoToDelete);
     };
 
     var todoApp = {
