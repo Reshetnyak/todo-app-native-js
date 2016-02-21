@@ -19,6 +19,7 @@
         var closeBtn        = createCloseBtn();
 
         fullFillLi();
+        addHandlers();
 
         return todoLi;
 
@@ -37,7 +38,6 @@
             var descriptionForm = doc.createElement('FORM');
 
             descriptionForm.classList.add('todo-description');
-            descriptionForm.addEventListener('submit', saveChanges.bind(todo));
 
             return descriptionForm;
         }
@@ -47,7 +47,6 @@
             var todoStatus = doc.createElement('SPAN');
 
             todoStatus.classList.add('todo-status');
-            todoStatus.addEventListener('click', toggleStatus.bind(todo));
 
             return todoStatus;
         }
@@ -58,7 +57,6 @@
 
             textSpan.classList.add('todo-text');
             textSpan.textContent = todo.text;
-            textSpan.addEventListener('dblclick', showInput);
 
             return textSpan;
         }
@@ -72,7 +70,6 @@
             todoInput.value = todo.text;
             todoInput.setAttribute('tabindex', todoApp.todosNum + 1);
             todoInput.setAttribute('name', 'todo' + todoApp.todosNum + 1);
-            todoInput.addEventListener('blur', saveChanges.bind(todo));
 
             return todoInput;
         }
@@ -82,6 +79,7 @@
             var closeBtn = doc.createElement('SPAN');
 
             closeBtn.classList.add('close-btn');
+            closeBtn.textContent = ' X';
             closeBtn.addEventListener('click', todo.removeTodo.bind(todo));
 
             return closeBtn;
@@ -93,6 +91,14 @@
             descriptionForm.appendChild(textSpan);
             descriptionForm.appendChild(todoInput);
             descriptionForm.appendChild(closeBtn);
+        }
+
+        function addHandlers(){
+            descriptionForm.addEventListener('submit', saveChanges.bind(todo));
+            todoStatus.addEventListener('click', toggleStatus.bind(todo));
+            textSpan.addEventListener('dblclick', showInput);
+            todoInput.addEventListener('blur', saveChanges.bind(todo));
+            closeBtn.addEventListener('click', todo.removeTodo.bind(todo));
         }
 
         function showInput(){
@@ -118,7 +124,9 @@
 
             if ( isEmpty && todo.wasSubmited === false){
                 todo.removeTodo();
-                delete todo;
+                todoApp.todosNum -= 1;
+                todoApp.setDummyTodoVisibility();
+                todo = null; //delete todo;
             } else {
                 todo.text = val;
                 textSpan.textContent = val;
@@ -146,13 +154,11 @@
     };
 
     Todo.prototype.removeTodo = function(){
+
         var ul = todoApp.todosUl;
         var todoToDelete = ul.querySelector('#' + this.id);
 
         ul.removeChild(todoToDelete);
-        todoApp.todosNum -= 1;
-
-        todoApp.setDummyTodoVisibility();
     };
 
     var todoApp = {
