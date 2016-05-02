@@ -46,7 +46,7 @@
         addHandlers();
 
         function addHandlers(){
-            descriptionForm.addEventListener('submit', saveChanges.bind(todo));
+            descriptionForm.addEventListener('submit', onSubmitTodo.bind(todo));
             todoStatus.addEventListener('click', toggleStatus.bind(todo));
             textSpan.addEventListener('dblclick', showInput);
             todoInput.addEventListener('blur', saveChanges.bind(todo));
@@ -62,19 +62,17 @@
             textSpan.classList.toggle('hidden');
             todoInput.classList.toggle('hidden');
         }
-        function saveChanges(e){
-
-            if (e.type === 'submit'){
-                todo.wasSubmited = true;
-                e.preventDefault();
-            } else {
-                todo.wasSubmited = false;
-            }
+        function onSubmitTodo(e){
+            e.preventDefault();
+            // it will cause save changes
+            todoApp.todoInput.focus();
+        }
+        function saveChanges(){
 
             var val = todoInput.value;
             var isEmpty = val.trim() === '';
 
-            if ( isEmpty && todo.wasSubmited === false){
+            if ( isEmpty ){
                 todo.removeTodo();
                 todoApp.todosNum -= 1;
                 todoApp.setDummyTodoVisibility();
@@ -82,9 +80,9 @@
             } else {
                 todo.text = val;
                 textSpan.textContent = val;
-                toggleEditableMode();
             }
 
+            toggleEditableMode();
             todoApp.todoInput.focus();
         }
         function toggleStatus(){
